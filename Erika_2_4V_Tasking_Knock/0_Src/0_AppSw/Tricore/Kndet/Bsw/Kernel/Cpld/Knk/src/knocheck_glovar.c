@@ -47,17 +47,18 @@ KNOCHECK_CIRBUFF Knocheck_FiltInfo[MAX_CHANNEL][KNK_PARALLELFILTER_SIZE];
 	#pragma section neardata
 	#pragma align 8
 	sint16 Knocheck_DestCopyRam[BUFFER_SIZE];
-	#pragma align 8
+#pragma align restore
 	sint16 Knocheck_FilterResult[KNK_PARALLELFILTER_SIZE][BUFFER_SIZE];
-	uint16 Knocheck_Integrated[MAX_CHANNEL][KNK_PARALLELFILTER_SIZE];
-	uint16 Knocheck_Integr[MAX_CHANNEL][KNK_PARALLELFILTER_SIZE];
+
+	sint16 Knocheck_Integr[KNK_PARALLELFILTER_SIZE][BUFFER_SIZE];
+	sint32 Knocheck_Integrated[MAX_CHANNEL][KNK_PARALLELFILTER_SIZE];
 	uint16 Knocheck_NumIputData;
 	#pragma section neardata restore
 #elif(FINAL==CONTROL_DIS)
 	uint32 cntDATA;
 	uint16 Remain_Data_Num[DATA_TEST_COUNT]={0,};
 	uint16 Knocheck_NumIputData[DATA_TEST_COUNT]={0,};
-	uint16 Knocheck_Integrated[MAX_CHANNEL][KNK_PARALLELFILTER_SIZE];
+	sint32 Knocheck_Integrated[MAX_CHANNEL][KNK_PARALLELFILTER_SIZE];
 	uint16 Knocheck_Integr[MAX_CHANNEL][KNK_PARALLELFILTER_SIZE];
 	uint16 temp_Data_Num;
 	uint16 Knocheck_NumIputData_last;
@@ -66,8 +67,10 @@ KNOCHECK_CIRBUFF Knocheck_FiltInfo[MAX_CHANNEL][KNK_PARALLELFILTER_SIZE];
 	#pragma align 8
 	sint16 Knocheck_DestCopyRam[DATA_TEST_COUNT][BUFFER_PLUS_TWO];
 	#pragma section neardata restore
+	#pragma section neardata
 	#pragma align 8
 	sint16 Knocheck_FilterResult[DATA_TEST_COUNT][KNK_PARALLELFILTER_SIZE][BUFFER_PLUS_TWO];
+	#pragma section neardata restore
 #endif
 #pragma section neardata
 /* Input: Data in 1Q15 */
@@ -134,12 +137,30 @@ sint16   KNK_DETECTION_FILTER_SET[KNK_FILTERSET_SIZE][KNK_KDF_ORDER] =
 #elif(FINAL==CONTROL_EN)
 	sint16 KNK_DETECTION_FILTER_SET[KNK_FILTERSET_SIZE][KNK_KDF_ORDER] = {
 			// Filter1: 8 kHz
-					{ 83, 63, 65526, 65421, 65299, 65202, 65168, 65229, 65389, 87,
+			{
+				0x8000,0x0000,0x0000,0x0000,
+				0x0000,0x0000,0x0000,0x0000,
+				0x0000,0x0000,0x0000,0x0000,
+				0x0000,0x0000,0x0000,0x0000,
+				0x0000,0x0000,0x0000,0x0000,
+				0x0000,0x0000,0x0000,0x0000,
+				0x0000,0x0000,0x0000,0x0000,
+				0x0000,0x0000,0x0000,0x0000,
+				0x0000,0x0000,0x0000,0x0000,
+				0x0000,0x0000,0x0000,0x0000,
+				0x0000,0x0000,0x0000,0x0000,
+				0x0000,0x0000,0x0000,0x0000,
+				0x0000,0x0000,0x0000,0x0000,
+				0x0000,0x0000,0x0000,0x0000,
+				0x0000,0x0000,0x0000,0x0000,
+				0x0000,0x0000,0x0000,0x0000
+			},
+/*					{ 83, 63, 65526, 65421, 65299, 65202, 65168, 65229, 65389, 87,
 							346, 565, 677, 629, 390, 65501, 64941, 64344, 63850,
 							63615, 63786, 64460, 131, 1894, 4974, 4974, 1894, 131,
 							64460, 63786, 63615, 63850, 64344, 64941, 65501, 390,
 							629, 677, 565, 346, 87, 65389, 65229, 65168, 65202,
-							65299, 65421, 65526, 63, 83, },
+							65299, 65421, 65526, 63, 83, },*/
 					// Filter2: 10 kHz
 					{ 65451, 65476, 11, 91, 156, 159, 72, 65437, 65232, 65077,
 							65059, 65226, 26, 435, 762, 840, 552, 65425, 64524,

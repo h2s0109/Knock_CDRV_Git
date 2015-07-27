@@ -42,7 +42,7 @@
 /******************************************************************************/
 /*-------------------------Function Implementations---------------------------*/
 /******************************************************************************/
-#pragma section code ".text.cpu1_psram"
+#pragma section code "cpu1_psram"
 IFX_INTERRUPT (Knocheck_Window_ISR, 0, KNOCK_WINDOW_PRIO)
 {
 	/*uint32  cntChan;*/
@@ -91,13 +91,13 @@ IFX_INTERRUPT (Knocheck_Window_ISR, 0, KNOCK_WINDOW_PRIO)
 #ifdef KNOCHECK_TEST
 	    	cntDATASET = 0;
 	    	++TestCntsource[0];
-	    	psDMA->CH[DMA_CHANNEL_SELECT].SADR.U =CPU_GLB_ADDR_DSPR(Cpu_getCoreId(), &TestCntsource[0]);
-	    	//psDMA->CH[DMA_CHANNEL_SELECT].SADR.U =CPU_GLB_ADDR_DSPR(Cpu_getCoreId(), &DSADC_RESM);
-	    	Knk_GetIntgDataEx(KnoCheck_RunChan,Test_Integrated,3);
+	    	//psDMA->CH[DMA_CHANNEL_SELECT].SADR.U =CPU_GLB_ADDR_DSPR(Cpu_getCoreId(), &TestCntsource[0]);
+	    	psDMA->CH[DMA_CHANNEL_SELECT].SADR.U =CPU_GLB_ADDR_DSPR(Cpu_getCoreId(), &DSADC_RESM);
+	    	Knk_GetIntgDataEx(Knocheck_Ready_Chan,Test_Integrated,3);
 #else
 	    	psDMA->CH[DMA_CHANNEL_SELECT].SADR.U =CPU_GLB_ADDR_DSPR(Cpu_getCoreId(), &DSADC_RESM);
 #endif
-			if(Knocheck_Ready_Chan < (MAX_CHANNEL-1))
+			if((Knocheck_Ready_Chan < (MAX_CHANNEL-1))&&((MAX_CHANNEL-1)>0))
 			{
 				Knocheck_Ready_Chan++;
 			}
@@ -105,11 +105,9 @@ IFX_INTERRUPT (Knocheck_Window_ISR, 0, KNOCK_WINDOW_PRIO)
 			{
 				Knocheck_Ready_Chan = 0;
 			}
-			KnoCheck_RunChan = Knocheck_Ready_Chan;
-
 	}
 	/*End of (GTM_KNOCk_MODUL_CHANNEL_IRQ_NOTIFY.B.CCU1TC == TRUE)*/
 }
 /*End of IFX_INTERRUPT (Knocheck_Window_ISR, 0, 52)*/
 
-
+#pragma section code restore

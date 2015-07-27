@@ -35,7 +35,7 @@
 * \param[in,out] s vector[m-1] intermediate state
 * \param[in] n number of samples in input signal
  */
-#pragma section code ".text.cpu1_psram"
+#pragma section code "cpu1_psram"
 void Ifx_firRealQ15a(
                 sint16 *    x,
                 sint16 *    y,
@@ -50,7 +50,7 @@ void FirBlk_4_16(
 		KNOCHECK_CIRBUFF *  DLY,    //Ptr to Circ-Ptr of Delay-Buffer
 		uint32         nX      //Size of Input-Buffer
                 );
-
+#pragma section code restore
 #endif /* IFX_DSPLIB_H */
 
 

@@ -138,7 +138,7 @@ static void KnoCheck_Dsadc_IniChanDftCfg(Dsadc_ChannelConfig *KnoCheck_DSADC_Cha
 	/*Assign_DSADC_FIRfilter_value*/
 	KnoCheck_DSADC_ChanDftCfg->firFilter.fir0Enabled       	= TRUE;									/*DSADC_CH_FCFGM.B.FIR0EN*/
 	KnoCheck_DSADC_ChanDftCfg->firFilter.fir1Enabled       	= TRUE;									/*DSADC_CH_FCFGM.B.FIR1EN*/
-	KnoCheck_DSADC_ChanDftCfg->firFilter.offsetCompensation = FALSE;								/*DSADC_CH_FCFGM.B.OCEN*/
+	KnoCheck_DSADC_ChanDftCfg->firFilter.offsetCompensation = TRUE;									/*DSADC_CH_FCFGM.B.OCEN*/
 	KnoCheck_DSADC_ChanDftCfg->firFilter.dataShift         	= FirDataShift_shiftBy1; 				/*DSADC_CH_FCFGM.B.DSH*/
 	KnoCheck_DSADC_ChanDftCfg->firFilter.internalShift     	= FirDataShift_shiftBy1;       			/*DSADC_CH_FCFGM.B.FSH*/
 

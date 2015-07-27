@@ -41,7 +41,7 @@
 /*-------------------------Function Implementations---------------------------*/
 /******************************************************************************/
 
-
+#pragma section code "cpu1_psram"
 IFX_INTERRUPT (DMA_FULL_ISR, 0, KNOCHECK_DMA_PRIO)
 {
 	/*only for debugging*/
@@ -53,6 +53,7 @@ IFX_INTERRUPT (DMA_FULL_ISR, 0, KNOCHECK_DMA_PRIO)
 	{
 		P14_OMSR.B.PS2=1;
 	}
+
 	KnoCheck_IgnDataCnt++;
 	Ifx_DMA *psDMA = &MODULE_DMA;
 
@@ -114,5 +115,6 @@ IFX_INTERRUPT (DMA_FULL_ISR, 0, KNOCHECK_DMA_PRIO)
 	DMA_ISR_Cnt++;
 #endif
 }
+#pragma section code restore
 /*End of DMA_Count_ISR*/
 

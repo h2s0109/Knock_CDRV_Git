@@ -61,8 +61,8 @@ void KnoCheck_Dma_Ini(void)
     {*/
     	cfgKC_DmaChan.channelId          	= (Dma_ChannelId)DMA_CHANNEL_SELECT;
 #ifdef KNOCHECK_TEST
-    	cfgKC_DmaChan.sourceAddress 	   	= CPU_GLB_ADDR_DSPR(Cpu_getCoreId(), &TestCntsource[0]);
-    	//cfgKC_DmaChan.sourceAddress 	   	= CPU_GLB_ADDR_DSPR(Cpu_getCoreId(), &DSADC_RESM);
+    	//cfgKC_DmaChan.sourceAddress 	   	= CPU_GLB_ADDR_DSPR(Cpu_getCoreId(), &TestCntsource[0]);
+    	cfgKC_DmaChan.sourceAddress 	   	= CPU_GLB_ADDR_DSPR(Cpu_getCoreId(), &DSADC_RESM);
 #else
     	cfgKC_DmaChan.sourceAddress 	   	= CPU_GLB_ADDR_DSPR(Cpu_getCoreId(), &DSADC_RESM);
 #endif

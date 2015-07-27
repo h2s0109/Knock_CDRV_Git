@@ -26,6 +26,6 @@
 			#define ENDIS_CONTROL DSADC_ENDIS
 			#define CONTROL_DIS 0
 			#define CONTROL_EN 1
-			#define FINAL CONTROL_DIS
+			#define FINAL CONTROL_EN
 	#endif /*End of KNOCHECK_TEST*/
 #endif /* TEST_SWITCH_H_ */

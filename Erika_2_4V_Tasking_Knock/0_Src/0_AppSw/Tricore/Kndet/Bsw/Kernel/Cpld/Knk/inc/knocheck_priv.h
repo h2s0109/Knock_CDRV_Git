@@ -69,10 +69,10 @@
 	#pragma section neardata
 	#pragma align 8
 	extern sint16 Knocheck_DestCopyRam[BUFFER_SIZE];
-	#pragma align 8
+	#pragma align restore
 	extern sint16 Knocheck_FilterResult[KNK_PARALLELFILTER_SIZE][BUFFER_SIZE];
-	extern uint16 Knocheck_Integrated[MAX_CHANNEL][KNK_PARALLELFILTER_SIZE];
-	extern uint16 Knocheck_Integr[MAX_CHANNEL][KNK_PARALLELFILTER_SIZE];
+	extern sint32 Knocheck_Integrated[MAX_CHANNEL][KNK_PARALLELFILTER_SIZE];
+	extern sint16 Knocheck_Integr[KNK_PARALLELFILTER_SIZE][BUFFER_SIZE];
 	extern uint16 Knocheck_NumIputData;
 	#pragma section neardata restore
 #elif(FINAL==CONTROL_DIS)
@@ -95,7 +95,7 @@
 	#pragma section neardata restore
 	#pragma align 8
 	extern sint16 Knocheck_FilterResult[DATA_TEST_COUNT][KNK_PARALLELFILTER_SIZE][BUFFER_PLUS_TWO];
-	extern uint16 Knocheck_Integrated[MAX_CHANNEL][KNK_PARALLELFILTER_SIZE];
+	extern sint32 Knocheck_Integrated[MAX_CHANNEL][KNK_PARALLELFILTER_SIZE];
 	extern uint16 Knocheck_Integr[MAX_CHANNEL][KNK_PARALLELFILTER_SIZE];
 #endif
 	/*End of #if(FINAL==CONTROL_EN)*/

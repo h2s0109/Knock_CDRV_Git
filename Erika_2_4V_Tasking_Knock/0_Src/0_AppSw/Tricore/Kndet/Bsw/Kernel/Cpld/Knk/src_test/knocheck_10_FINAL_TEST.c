@@ -51,7 +51,6 @@ void Knk_GetIntgDataEx(uint8 Ch, sint32* IntegratedValues,uint8 ValueLength)
 	for(ctFilter = 0;ctFilter<ValueLength;ctFilter++)
 	{
 		IntegratedValues[ctFilter]=Knocheck_Integrated[Ch][ctFilter];
-		Knocheck_Integr[Ch][ctFilter] 	= 0;
 		Knocheck_Integrated[Ch][ctFilter] = 0;
 	}
 }
@@ -88,7 +87,6 @@ void Knocheck_Ini(void)
 			Knocheck_FiltInfo[cntKnoCheckIni][ctFilter].base = &(KNK_DETECTION_FILTER_SET[0]);
 			Knocheck_FiltInfo[cntKnoCheckIni][ctFilter].index = 0;
 			Knocheck_FiltInfo[cntKnoCheckIni][ctFilter].length = KNK_KDF_ORDER*2;
-			Knocheck_Integr[cntKnoCheckIni][ctFilter] 	= 0;
 			Knocheck_Integrated[cntKnoCheckIni][ctFilter] = 0;
 		}
 	}
@@ -103,8 +101,8 @@ void Knocheck_Ini(void)
 		{
 		case 0:
 			Knk_En(0,KNK_EN_ENABLE);
-			Knk_En(1,KNK_EN_ENABLE);
-			Knk_En(2,KNK_EN_ENABLE);
+			Knk_En(0,KNK_EN_ENABLE);
+			Knk_En(0,KNK_EN_ENABLE);
 			break;
 		case 1:
 			Knk_En(0,KNK_EN_ENABLE);
@@ -180,8 +178,8 @@ void UpdateMeasureWindow_Test(void)
 	{
 	case 0:
 		Knk_UpdateMeasureWindow((uint8)KNK_CH1,4,10);
-		Knk_UpdateMeasureWindow((uint8)KNK_CH2,4,10);
-		Knk_UpdateMeasureWindow((uint8)KNK_CH3,4,10);
+		Knk_UpdateMeasureWindow((uint8)KNK_CH1,4,10);
+		Knk_UpdateMeasureWindow((uint8)KNK_CH1,4,10);
 		break;
 	case 1:
 		Knk_UpdateMeasureWindow((uint8)KNK_CH1,4,12);
@@ -235,6 +233,7 @@ void Knk_SetCtrlDataEx(uint8 Ch, uint8 InputGain, uint8* const FilterIndices,uin
 	/* rl is dead parameter need to delete*/
 	uint8 ctFilter;
 	uint8 selFilter;
+
 	Ifx_DSADC *psDSADC = &MODULE_DSADC;
 
 	Errortrace = NORMAL;
@@ -242,7 +241,7 @@ void Knk_SetCtrlDataEx(uint8 Ch, uint8 InputGain, uint8* const FilterIndices,uin
 	KnoCheck_Gain[Ch] = InputGain;
 	if(KnoCheck_WinCon[Knocheck_Ready_Chan].Endis == TRUE)
 	{
-		psDSADC->CH[DSADC_CHANNEL_SELECT].MODCFG.B.GAINSEL = KnoCheck_Gain[Knocheck_Ready_Chan];
+		psDSADC->CH[DSADC_CHANNEL_SELECT].MODCFG.U= (0x8000|KnoCheck_Gain[0]<<4);
 	}
 
 	/*Channel number check procedure*/
@@ -278,15 +277,15 @@ void Knk_SetCtrlDataEx(uint8 Ch, uint8 InputGain, uint8* const FilterIndices,uin
 		Errortrace |= CHANNEL_OVER;
 	}
 }
-
+uint8 gain_test=0;
 void SetCtrlData_Test(void)
 {
-	Knk_SetCtrlDataEx(Knocheck_Ready_Chan,1,FilterIndices,3,0);
+	Knk_SetCtrlDataEx(Knocheck_Ready_Chan,gain_test,FilterIndices,3,0);
 
 }
 
 
-#pragma section code ".text.cpu1_psram"
+#pragma section code "cpu1_psram"
 void KnoCheck_MemCopy64(uint64* xDest_pu64,uint64* xSrc_pcu64, uint16 numBytes)
 {
     uint8 i;
@@ -362,19 +361,18 @@ void KnoCheck_Memcopy(void)
 void KnoCheck_Filter(void)
 {
 	uint8 cntFilt;
-	uint8 cntInteg;
 	for(cntFilt = 0; cntFilt <KnoCheck_RunFiltNum ;cntFilt++)
 	{
 		switch(cntFilt)
 		{
 		case 0:
-					Ifx_firRealQ15a (Knocheck_DestCopyRam,Knocheck_FilterResult[cntFilt], Knocheck_FiltInfo[KnoCheck_RunChan][cntFilt], &cptr_Coeff_Dly_0, KnoCheck_FirNumInput);
+					Ifx_firRealQ15a (Knocheck_DestCopyRam,Knocheck_FilterResult[cntFilt], Knocheck_FiltInfo[Knocheck_Ready_Chan][cntFilt], &cptr_Coeff_Dly_0, KnoCheck_FirNumInput);
 			break;
 		case 1:
-					Ifx_firRealQ15a (Knocheck_DestCopyRam,Knocheck_FilterResult[cntFilt], Knocheck_FiltInfo[KnoCheck_RunChan][cntFilt], &cptr_Coeff_Dly_1, KnoCheck_FirNumInput);
+					Ifx_firRealQ15a (Knocheck_DestCopyRam,Knocheck_FilterResult[cntFilt], Knocheck_FiltInfo[Knocheck_Ready_Chan][cntFilt], &cptr_Coeff_Dly_1, KnoCheck_FirNumInput);
 			break;
 		case 2:
-					Ifx_firRealQ15a (Knocheck_DestCopyRam,Knocheck_FilterResult[cntFilt], Knocheck_FiltInfo[KnoCheck_RunChan][cntFilt], &cptr_Coeff_Dly_2, KnoCheck_FirNumInput);
+					Ifx_firRealQ15a (Knocheck_DestCopyRam,Knocheck_FilterResult[cntFilt], Knocheck_FiltInfo[Knocheck_Ready_Chan][cntFilt], &cptr_Coeff_Dly_2, KnoCheck_FirNumInput);
 			break;
 		default:
 			break;
@@ -382,10 +380,10 @@ void KnoCheck_Filter(void)
 		/*End of switch(cntFilt)*/
 		if(KnoCheck_IgnDataCnt>=5)
 		{
-			for(cntInteg = 0;cntInteg<KnoCheck_FirNumInput;cntInteg++)
+			for(uint8 cntInteg = 0;cntInteg<KnoCheck_FirNumInput;cntInteg++)
 			{
-				Knocheck_Integr[KnoCheck_RunChan][cntFilt] 	=ABS(Knocheck_FilterResult[cntFilt][cntInteg]);
-				Knocheck_Integrated[KnoCheck_RunChan][cntFilt] +=Knocheck_Integr[Knocheck_Ready_Chan][cntFilt];
+				Knocheck_Integr[cntFilt][cntInteg] 	=ABS(Knocheck_FilterResult[cntFilt][cntInteg]);
+				Knocheck_Integrated[Knocheck_Ready_Chan][cntFilt] = Knocheck_Integrated[Knocheck_Ready_Chan][cntFilt]+(sint32)Knocheck_Integr[cntFilt][cntInteg];
 			}
 		}
 	}
@@ -406,6 +404,7 @@ void KnoCheck_ClearCoeffDly(void)
 }
 
 #elif(FINAL==CONTROL_DIS)
+#pragma section code "cpu1_psram"
 	void Memcopy_Test(void)
 	{
 		if(cntDATA < DATA_TEST_COUNT)
@@ -473,7 +472,8 @@ void KnoCheck_ClearCoeffDly(void)
 
 		}
 	}
-
+#pragma section code restore
+#pragma section code "cpu1_psram"
 	void FIR_Filter_Test(void)
 	{
 		uint8 cntFilt;
@@ -514,6 +514,7 @@ void KnoCheck_ClearCoeffDly(void)
 			}
 		}
 	}
+#pragma section code restore
 #endif
 /*End of #if(FINAL==CONTROL_EN)*/
 
