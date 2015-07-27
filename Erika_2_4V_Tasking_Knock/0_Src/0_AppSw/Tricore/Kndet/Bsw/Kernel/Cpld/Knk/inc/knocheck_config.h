@@ -15,6 +15,7 @@
 	#define MAX_CHANNEL 				3	/*User configurable*/
 	#define KNOCHECK_DMA_PRIO 			57	/*User configurable*/
 	#define BUFFER_SIZE  				128	/*User configurable*/
+	#define PRE_BUFFER_SIZE  			64	/*User configurable*/
 	#define KNK_KDF_ORDER				64	/*User configurable*/
 	#define KNK_FILTERSET_SIZE			11	/*User configurable*/
 	#define KNK_PARALLELFILTER_SIZE		3	/*User configurable*/

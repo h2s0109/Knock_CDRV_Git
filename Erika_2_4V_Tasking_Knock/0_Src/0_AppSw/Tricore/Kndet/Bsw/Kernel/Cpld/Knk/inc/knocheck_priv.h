@@ -50,6 +50,7 @@
 	extern uint8 SwitchWin;
 	extern uint8 Enable_control;
 	extern uint8 SwithEnDis;
+	extern sint16 cntDATASET;
 #endif
 	extern volatile sint16 Buffer0_Dest[BUFFER_SIZE];
 	extern volatile sint16 Buffer1_Dest[BUFFER_SIZE];

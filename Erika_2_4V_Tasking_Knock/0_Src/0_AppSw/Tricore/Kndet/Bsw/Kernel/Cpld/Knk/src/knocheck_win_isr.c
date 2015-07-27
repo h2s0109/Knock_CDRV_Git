@@ -89,12 +89,13 @@ IFX_INTERRUPT (Knocheck_Window_ISR, 0, KNOCK_WINDOW_PRIO)
 	    	psDMA->CH[DMA_CHANNEL_SELECT].CHCFGR.B.TREL = 10;
 	    	KnoCheck_IgnDataCnt = 0;
 #ifdef KNOCHECK_TEST
+	    	cntDATASET = 0;
 	    	++TestCntsource[0];
-	    	//psDMA->CH[DMA_CHANNEL_SELECT].SADR.U =CPU_GLB_ADDR_DSPR(Cpu_getCoreId(), &TestCntsource[0]);
-	    	psDMA->CH[DMA_CHANNEL_SELECT].SADR.U =CPU_GLB_ADDR_DSPR(Cpu_getCoreId(), &DSADC_RESM);
+	    	psDMA->CH[DMA_CHANNEL_SELECT].SADR.U =CPU_GLB_ADDR_DSPR(Cpu_getCoreId(), &TestCntsource[0]);
+	    	//psDMA->CH[DMA_CHANNEL_SELECT].SADR.U =CPU_GLB_ADDR_DSPR(Cpu_getCoreId(), &DSADC_RESM);
 	    	Knk_GetIntgDataEx(KnoCheck_RunChan,Test_Integrated,3);
 #else
-	    	psDMA->CH[DMA_CHANNEL_SELECT].SADR.U =CPU_GLB_ADDR_DSPR(Cpu_getCoreId(), DSADC_RESM);
+	    	psDMA->CH[DMA_CHANNEL_SELECT].SADR.U =CPU_GLB_ADDR_DSPR(Cpu_getCoreId(), &DSADC_RESM);
 #endif
 			if(Knocheck_Ready_Chan < (MAX_CHANNEL-1))
 			{

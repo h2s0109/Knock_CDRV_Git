@@ -10,8 +10,9 @@
 
 	typedef enum
 	{
-		DMA_ISR_FLAG       	= 0,
-		WINDOW_ISR_FLAG 	= 1
+		DMA_ISR_PRE_FLAG 	= 0,
+		DMA_ISR_FLAG       		= 1,
+		WINDOW_ISR_FLAG 		= 2,
 	} KNOCHECK_ISR_FLAG;
 
 	typedef enum
@@ -23,10 +24,12 @@
 #if(FINAL==CONTROL_DIS)
 	typedef enum
 	{
-		BUFFER0_DMA 		= 1111,
-		BUFFER1_DMA 		= 2222,
-		BUFFER0_KNWINDOW 	= 3333,
-		BUFFER1_KNWINDOW 	= 4444,
+		BUFFER0_preDMA 		= 1111,
+		BUFFER1_preDMA 		= 2222,
+		BUFFER0_DMA 		= 3333,
+		BUFFER1_DMA 		= 4444,
+		BUFFER0_KNWINDOW 	= 5555,
+		BUFFER1_KNWINDOW 	= 6666,
 	} BUFFER_ISR_FLAG;
 #endif
 

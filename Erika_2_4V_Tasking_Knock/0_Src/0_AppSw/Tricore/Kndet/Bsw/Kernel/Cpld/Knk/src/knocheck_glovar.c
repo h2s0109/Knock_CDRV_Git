@@ -21,6 +21,7 @@
 	uint8 	SwithEnDis;
 	uint8 	Enable_control;
 	uint8 	Errortrace;
+	sint16 	cntDATASET;
 #endif
 	/*End of KNOCHECK_TEST*/
 
@@ -53,7 +54,6 @@ KNOCHECK_CIRBUFF Knocheck_FiltInfo[MAX_CHANNEL][KNK_PARALLELFILTER_SIZE];
 	uint16 Knocheck_NumIputData;
 	#pragma section neardata restore
 #elif(FINAL==CONTROL_DIS)
-	sint16 cntDATASET = 0;
 	uint32 cntDATA;
 	uint16 Remain_Data_Num[DATA_TEST_COUNT]={0,};
 	uint16 Knocheck_NumIputData[DATA_TEST_COUNT]={0,};

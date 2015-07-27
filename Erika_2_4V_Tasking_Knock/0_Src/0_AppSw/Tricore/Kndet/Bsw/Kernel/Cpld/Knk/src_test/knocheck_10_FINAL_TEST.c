@@ -321,7 +321,17 @@ void KnoCheck_Memcopy(void)
 		Knocheck_NumIputData=(uint16)BUFFER_SIZE-numRemainData;
 		switch(KnoCheck_IsrDistFlg)
 		{
-
+		case DMA_ISR_PRE_FLAG:
+			if(KnoCheck_NumBuffer == BUFFER1)/*!!!CAUTION!!!!*/
+			{
+				KnoCheck_MemCopy64((uint64*)Knocheck_DestCopyRam,(uint64*)Buffer0_Dest,PRE_BUFFER_SIZE);
+			}
+			else
+			{
+				KnoCheck_MemCopy64((uint64*)Knocheck_DestCopyRam,(uint64*)Buffer1_Dest,PRE_BUFFER_SIZE);
+			}
+			KnoCheck_FirNumInput = PRE_BUFFER_SIZE;
+			break;
 		case DMA_ISR_FLAG:
 			if(KnoCheck_NumBuffer == BUFFER1)/*!!!CAUTION!!!!*/
 			{
@@ -370,11 +380,13 @@ void KnoCheck_Filter(void)
 			break;
 		}
 		/*End of switch(cntFilt)*/
-
-		for(cntInteg = 0;cntInteg<KnoCheck_FirNumInput;cntInteg++)
+		if(KnoCheck_IgnDataCnt>=5)
 		{
-			Knocheck_Integr[KnoCheck_RunChan][cntFilt] 	=ABS(Knocheck_FilterResult[cntFilt][cntInteg]);
-			Knocheck_Integrated[KnoCheck_RunChan][cntFilt] +=Knocheck_Integr[Knocheck_Ready_Chan][cntFilt];
+			for(cntInteg = 0;cntInteg<KnoCheck_FirNumInput;cntInteg++)
+			{
+				Knocheck_Integr[KnoCheck_RunChan][cntFilt] 	=ABS(Knocheck_FilterResult[cntFilt][cntInteg]);
+				Knocheck_Integrated[KnoCheck_RunChan][cntFilt] +=Knocheck_Integr[Knocheck_Ready_Chan][cntFilt];
+			}
 		}
 	}
 	/*End of for(cntFilt = 0; cntFilt <KnoCheck_RunFiltNum ;cntFilt++)*/
@@ -406,7 +418,22 @@ void KnoCheck_ClearCoeffDly(void)
 			Knocheck_NumIputData_last= Knocheck_NumIputData[cntDATA];
 			switch(KnoCheck_IsrDistFlg)
 			{
+			case DMA_ISR_PRE_FLAG:
+				if(KnoCheck_NumBuffer == BUFFER1)/*!!!CAUTION!!!!*/
+				{
+					KnoCheck_MemCopy64((uint64*)Knocheck_DestCopyRam[cntDATA],(uint64*)Buffer0_Dest,PRE_BUFFER_SIZE);
+					Knocheck_DestCopyRam[cntDATA][BUFFER_EXT_POSITION_1]=BUFFER0_preDMA;
+					Knocheck_DestCopyRam[cntDATA][BUFFER_EXT_POSITION_2]=cntDATASET;
+				}
+				else
+				{
+					KnoCheck_MemCopy64((uint64*)Knocheck_DestCopyRam[cntDATA],(uint64*)Buffer1_Dest,PRE_BUFFER_SIZE);
+					Knocheck_DestCopyRam[cntDATA][BUFFER_EXT_POSITION_1]=BUFFER1_preDMA;
+					Knocheck_DestCopyRam[cntDATA][BUFFER_EXT_POSITION_2]=cntDATASET;
 
+				}
+				KnoCheck_FirNumInput = PRE_BUFFER_SIZE;
+				break;
 			case DMA_ISR_FLAG:
 				if(KnoCheck_NumBuffer == BUFFER1)/*!!!CAUTION!!!!*/
 				{
