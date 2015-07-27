@@ -18,7 +18,7 @@
 #include "Ifx_Types.h"                 /* Do not remove this include */
 #include "knocheck_pub.h"
 
-#if defined(REAL_DOUBLE_BUFFRING_TEST) || defined(SIMPLE_FILTER_DOUBLEBUF_TEST) || defined(CHANGE_FILTER_DOUBLEBUF_TEST) || defined(CHANNEL_FILTER_SELECT_TEST)
+#if defined(FINAL)
 	/**
 	 * @name Knock Channels
 	 */
@@ -55,7 +55,7 @@
 	// Diagnosis
 	extern Knk_DiagDataT Knk_GetDiagData(uint8 Ch);
 
-#endif /*End of defined(REAL_DOUBLE_BUFFRING_TEST) || defined(SIMPLE_FILTER_DOUBLEBUF_TEST) || defined(CHANGE_FILTER_DOUBLEBUF_TEST) || defined(CHANNEL_FILTER_SELECT_TEST)*/
+#endif /*End of */
 
 #ifndef NOT_USED
 #ifndef KNK_ASW_H_

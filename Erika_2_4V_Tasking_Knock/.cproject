@@ -19,7 +19,7 @@
 							<option id="com.tasking.ctc.cpu.585156250" name="Processor:" superClass="com.tasking.ctc.cpu" value="tc27x" valueType="string"/>
 							<option id="com.tasking.ctc.coreSelection.951012872" name="Use core:" superClass="com.tasking.ctc.coreSelection" value="vtc" valueType="string"/>
 							<targetPlatform archList="all" binaryParser="com.tasking.managedbuilder.TASKING_ELF;com.tasking.managedbuilder.TASKING_SRECORD" id="com.tasking.ctc.platform.abs.debug.1794445075" name="Debug" osList="" superClass="com.tasking.ctc.platform.abs.debug"/>
-							<builder buildPath="${workspace_loc:/Erika_2_4V_Tasking_Knock_FINAL/Debug}" id="com.tasking.ctc.builder.abs.debug.1750035595" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="TASKING TriCore Makefile generator" parallelBuildOn="true" parallelizationNumber="optimal" superClass="com.tasking.ctc.builder.abs.debug"/>
+							<builder buildPath="${workspace_loc:/Erika_2_4V_Tasking_Knock/Debug}" id="com.tasking.ctc.builder.abs.debug.1750035595" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="TASKING TriCore Makefile generator" parallelBuildOn="true" parallelizationNumber="optimal" superClass="com.tasking.ctc.builder.abs.debug"/>
 							<tool id="com.tasking.ctc.cc.abs.debug.1263620584" name="C/C++ Compiler" superClass="com.tasking.ctc.cc.abs.debug">
 								<option id="com.tasking.ctc.cc.pr36858.551828079" name="workaround for PR36858" superClass="com.tasking.ctc.cc.pr36858" value="true" valueType="string"/>
 								<option id="com.tasking.ctc.cc.noTaskingSfr.1614237595" name="Automatic inclusion of '.sfr' file" superClass="com.tasking.ctc.cc.noTaskingSfr" value="false" valueType="boolean"/>
@@ -67,6 +67,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/0_Src/4_McHal/Tricore/Src/Std}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/0_Src/4_McHal/Tricore/Stm/Std}&quot;"/>
 								</option>
+								<option id="com.tasking.ctc.c.codeGeneration.fpuOn.1281098627" name="Use the FPU if present" superClass="com.tasking.ctc.c.codeGeneration.fpuOn" value="true" valueType="boolean"/>
 								<inputType id="com.tasking.ctc.cppInputType.348629190" name="C++" superClass="com.tasking.ctc.cppInputType"/>
 								<inputType id="com.tasking.ctc.cpp.cInputType.542592277" name="C" superClass="com.tasking.ctc.cpp.cInputType"/>
 								<inputType id="com.tasking.ctc.cc.msInputType.764320682" name="MS" superClass="com.tasking.ctc.cc.msInputType"/>
@@ -75,7 +76,7 @@
 								<inputType id="com.tasking.ctc.asmInputType.93854877" name="ASM" superClass="com.tasking.ctc.asmInputType"/>
 							</tool>
 							<tool id="com.tasking.ctc.lk.abs.debug.1611698489" name="Linker" superClass="com.tasking.ctc.lk.abs.debug">
-								<option id="com.tasking.ctc.lk.mapFile.mapFile.1985086241" superClass="com.tasking.ctc.lk.mapFile.mapFile" value="true" valueType="boolean"/>
+								<option id="com.tasking.ctc.lk.mapFile.mapFile.1985086241" name="Generate map file (.map)" superClass="com.tasking.ctc.lk.mapFile.mapFile" value="true" valueType="boolean"/>
 								<inputType id="com.tasking.ctc.lkObjInputType.29745510" name="OBJ" superClass="com.tasking.ctc.lkObjInputType"/>
 								<inputType id="com.tasking.ctc.lkLibInputType.1950341587" name="LIB" superClass="com.tasking.ctc.lkLibInputType"/>
 							</tool>
@@ -111,7 +112,7 @@
 							<option id="com.tasking.ctc.cpu.1618160017" name="Processor:" superClass="com.tasking.ctc.cpu" value="tc27x" valueType="string"/>
 							<option id="com.tasking.ctc.coreSelection.533230554" name="Use core:" superClass="com.tasking.ctc.coreSelection" value="vtc" valueType="string"/>
 							<targetPlatform archList="all" binaryParser="com.tasking.managedbuilder.TASKING_ELF;com.tasking.managedbuilder.TASKING_SRECORD" id="com.tasking.ctc.platform.abs.release.999805303" name="Release" osList="" superClass="com.tasking.ctc.platform.abs.release"/>
-							<builder buildPath="${workspace_loc:/Erika_2_4V_Tasking_Knock_FINAL/Release}" id="com.tasking.ctc.builder.abs.debug.1226415715" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="TASKING TriCore Makefile generator" parallelBuildOn="true" parallelizationNumber="optimal" superClass="com.tasking.ctc.builder.abs.debug"/>
+							<builder buildPath="${workspace_loc:/Erika_2_4V_Tasking_Knock/Release}" id="com.tasking.ctc.builder.abs.debug.1226415715" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="TASKING TriCore Makefile generator" parallelBuildOn="true" parallelizationNumber="optimal" superClass="com.tasking.ctc.builder.abs.debug"/>
 							<tool id="com.tasking.ctc.cc.abs.release.803869031" name="C/C++ Compiler" superClass="com.tasking.ctc.cc.abs.release">
 								<option id="com.tasking.ctc.cc.pr36858.1197073737" name="workaround for PR36858" superClass="com.tasking.ctc.cc.pr36858" value="true" valueType="string"/>
 								<inputType id="com.tasking.ctc.cppInputType.1852922466" name="C++" superClass="com.tasking.ctc.cppInputType"/>

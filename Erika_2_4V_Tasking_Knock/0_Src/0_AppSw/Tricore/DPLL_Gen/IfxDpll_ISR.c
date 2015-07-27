@@ -281,33 +281,18 @@ IFX_INTERRUPT (list, 0, TE3_INT_NUM)
 			}
             IfxVrs_setEventOnTooth(Sync_tooth);
 
-           Ifx_DSADC *psDSADC = &MODULE_DSADC;
-
-    	   currentAngle = (GTM_TBU_CH1_BASE.U & 0x00FFFFFF);
-    	   volatile uint32 currentAngle_temp;
-    	   volatile uint32 currentAngle_temp2;
-    	   currentAngle_temp = GTM_ATOM2_CH5_SR0.U;					/*To update value, Should be read*/
-    	   currentAngle_temp2 = GTM_ATOM2_CH5_SR1.U;				/*To update value, Should be read*/
-    	   GTM_ATOM2_CH5_CM0.U =currentAngle+273*4;					/*update*/
-    	   GTM_ATOM2_CH5_CM1.U =currentAngle+273*10;
-
-			#ifdef SETCTRL_TEST
-    	   		SetCtrl_selection();
-			#endif /*End of SETCTRL_TEST*/
-
-			#ifdef TOTAL_FILTER_TEST
-    	   		SetCtrlData_Total_Filter_Test();
-			#endif /*End of SETCTRL_TEST*/
-
-			#ifdef CHANGE_FILTER_DOUBLEBUF_TEST
-				Filter_Selection();
+		#ifndef KNOCHECK_DSADC_TEST
+			#if(FINAL==CONTROL_EN)
+			   En_Test();
+			   UpdateMeasureWindow_Test();
+			   SetCtrlData_Test();
+			#elif(FINAL==CONTROL_DIS)
+				En_Test();
+				UpdateMeasureWindow_Test();
 				SetCtrlData_Test();
 			#endif
-			#ifdef CHANNEL_FILTER_SELECT_TEST
-				Filter_Selection();
-				SetCtrlData_Test();
-			#endif
-    	   Testcount2++;
+		#endif
+			Testcount2++;
         }
         P02_OMCR.B.PCL3=1;
     }

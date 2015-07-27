@@ -31,7 +31,6 @@
 #define ATOM02_INT_NUM        25
 #define ATOM40_INT_NUM        56
 #define ATOM41_INT_NUM        57
-#define ATOM22_INT_NUM        52
 #define MCS0_0_INT_NUM        40
 
 

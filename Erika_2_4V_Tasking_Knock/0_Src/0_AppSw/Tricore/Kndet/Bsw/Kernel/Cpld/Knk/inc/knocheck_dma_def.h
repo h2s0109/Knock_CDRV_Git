@@ -14,13 +14,7 @@
 
 #include "IfxDma_cfg.h"
 #include "IfxDma_bf.h"
-#include "IfxCpu_Intrinsics.h"
 #include "IfxDma_reg.h"
-#include "IfxSrc.h"
-/*
-#include "IfxScuWdt.h"
-#include "IfxScuCcu.h"
-*/
 
 /******************************************************************************/
 /*-----------------------------------Macros-----------------------------------*/
@@ -332,12 +326,12 @@ typedef struct
 typedef struct
 {
     Dma_ChannelId                 channelId;                                  /**< \brief Specifies the channel being used */
-    uint32                           sourceAddress;                              /**< \brief Source address for the DMA channel */
-    uint32                           destinationAddress;                         /**< \brief Destination address for the DMA channel */
-    uint32                           shadowAddress;                              /**< \brief Initial content of shadow address for the DMA channel */
-    uint32                           readDataCrc;                                /**< \brief Checksum for read data of the channel */
-    uint32                           sourceDestinationAddressCrc;                /**< \brief Checksum for source and destination address of channel */
-    uint16                           transferCount;                              /**< \brief Number of transfers in a transaction */
+    uint32                        sourceAddress;                              /**< \brief Source address for the DMA channel */
+    uint32                        destinationAddress;                         /**< \brief Destination address for the DMA channel */
+    uint32                        shadowAddress;                              /**< \brief Initial content of shadow address for the DMA channel */
+    uint32                        readDataCrc;                                /**< \brief Checksum for read data of the channel */
+    uint32                        sourceDestinationAddressCrc;                /**< \brief Checksum for source and destination address of channel */
+    uint16                        transferCount;                              /**< \brief Number of transfers in a transaction */
     Dma_ChannelMove               blockMode;                                  /**< \brief Number of moves in a transfer */
     Dma_ChannelRequestMode        requestMode;                                /**< \brief A service request initiates a single transfer, or the complete transaction */
     Dma_ChannelOperationMode      operationMode;                              /**< \brief keep enable/disable the hardware channel request after a transaction */
@@ -345,7 +339,7 @@ typedef struct
     Dma_ChannelPattern            pattern;                                    /**< \brief Pattern selection operation modes */
     Dma_ChannelRequestSource      requestSource;                              /**< \brief Request of channel transfer through hardware or daisy chain. channel transfer complete interrupt of previous channel will trigger the next channel request */
     Dma_ChannelBusPriority        busPriority;                                /**< \brief Bus priority selection */
-    boolean                          hardwareRequestEnabled;                     /**< \brief Enabling channel transaction via hardware request */
+    boolean                       hardwareRequestEnabled;                     /**< \brief Enabling channel transaction via hardware request */
     Dma_ChannelIncrementStep      sourceAddressIncrementStep;                 /**< \brief Describes the address offset with which the source address should be modified after each move */
     Dma_ChannelIncrementDirection sourceAddressIncrementDirection;            /**< \brief Decides whether the source address offset after each move should be added or decremented from the exisiting address */
     Dma_ChannelIncrementCircular  sourceAddressCircularRange;                 /**< \brief Determines which part of the source address remains unchanged and therby not updated after each move */
@@ -353,17 +347,15 @@ typedef struct
     Dma_ChannelIncrementDirection destinationAddressIncrementDirection;       /**< \brief Decides whether the destination address offset after each move should be added or decremented from the exisiting address */
     Dma_ChannelIncrementCircular  destinationAddressCircularRange;            /**< \brief Determines which part of the destination address remains unchanged and therby not updated after each move */
     Dma_ChannelShadow             shadowControl;                              /**< \brief selects the shadow transfer mode */
-    boolean                          sourceCircularBufferEnabled;                /**< \brief Enables/Disables the source circular buffering */
-    boolean                          destinationCircularBufferEnabled;           /**< \brief Enables/Disables the destination circular buffering */
-    boolean                          timestampEnabled;                           /**< \brief Enables/Disables the appendage of the time stamp after end of the last DMA move in a transaction */
-    boolean                          wrapSourceInterruptEnabled;                 /**< \brief An interrupt should be triggered whenever source address is wrapped */
-    boolean                          wrapDestinationInterruptEnabled;            /**< \brief An interrupt should be triggered whenever destination address is wrapped */
-    boolean                          channelInterruptEnabled;                    /**< \brief The channel transfer interrupt should be triggered. See also channelInterruptControl */
+    boolean                       sourceCircularBufferEnabled;                /**< \brief Enables/Disables the source circular buffering */
+    boolean                       destinationCircularBufferEnabled;           /**< \brief Enables/Disables the destination circular buffering */
+    boolean                       timestampEnabled;                           /**< \brief Enables/Disables the appendage of the time stamp after end of the last DMA move in a transaction */
+    boolean                       wrapSourceInterruptEnabled;                 /**< \brief An interrupt should be triggered whenever source address is wrapped */
+    boolean                       wrapDestinationInterruptEnabled;            /**< \brief An interrupt should be triggered whenever destination address is wrapped */
+    boolean                       channelInterruptEnabled;                    /**< \brief The channel transfer interrupt should be triggered. See also channelInterruptControl */
     Dma_ChannelInterruptControl   channelInterruptControl;                    /**< \brief The channel transfer interrupt can either be triggered depending on the interruptRaiseThreshold, or each time the transaction count is decremented */
-    uint8                            interruptRaiseThreshold;                    /**< \brief The value of the transferCount at which the interrupt should be raised */
-    boolean                          transactionRequestLostInterruptEnabled;     /**< \brief Enables/Disables the channel transaction request lost interrupt */
-    Ifx_Priority                     channelInterruptPriority;                   /**< \brief Priority of the channel interrupt trigger */
-    IfxSrc_Tos                       channelInterruptTypeOfService;              /**< \brief Interrupt service provider */
+    uint8                         interruptRaiseThreshold;                    /**< \brief The value of the transferCount at which the interrupt should be raised */
+    boolean                       transactionRequestLostInterruptEnabled;     /**< \brief Enables/Disables the channel transaction request lost interrupt */
 } Dma_ChannelConfig;
 
 /** \brief Configuration data structure of the Module
@@ -377,7 +369,7 @@ typedef struct
 
 typedef struct
 {
-    Dma_Channel chn[NUM_CHANNELS];     /**< \brief Dma channel handles */
+    Dma_Channel chn[MAX_CHANNEL];     /**< \brief Dma channel handles */
 }Dma_ChannelSetting;
 
 typedef enum

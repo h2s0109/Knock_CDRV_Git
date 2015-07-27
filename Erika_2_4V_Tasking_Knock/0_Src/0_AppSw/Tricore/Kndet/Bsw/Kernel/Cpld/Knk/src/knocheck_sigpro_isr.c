@@ -25,11 +25,10 @@
 /*------------------------------Global variables------------------------------*/
 /******************************************************************************/
 #ifdef KNOCHECK_TEST
-uint32 DMA_ISR_Cnt;
-IfxCpu_mutexLock resourceLock;
-boolean flag;
+	uint32 DMA_ISR_Cnt;
 #endif
 
+/*End of KNOCHECK_TEST*/
 /******************************************************************************/
 /*-------------------------Function Prototypes--------------------------------*/
 /******************************************************************************/
@@ -42,53 +41,57 @@ boolean flag;
 /*-------------------------Function Implementations---------------------------*/
 /******************************************************************************/
 
-#pragma section code ".text.cpu1_psram"
-IFX_INTERRUPT (DMA_Count_ISR, 0, 57)
+
+IFX_INTERRUPT (DMA_FULL_ISR, 0, KNOCHECK_DMA_PRIO)
 {
-
-	flag = IfxCpu_acquireMutex(&resourceLock);
-if (flag){
-
-#ifdef KNOCHECK_DOUBLE_BUFFERING
-	DMA_CH1_CHCSR.B.FROZEN = 0;
-	numBuffer = DMA_CH1_CHCSR.B.BUFFER;
-	if (DMA_CH1_CHCSR.B.BUFFER == BUFFER1)
+	/*only for debugging*/
+	if(P14_OUT.B.P2 == TRUE)
 	{
-		DMA_CH1_DADR.U= CPU_GLB_ADDR_DSPR(Cpu_getCoreId(), &destination[0]);
+		P14_OMCR.B.PCL2=1;
 	}
 	else
 	{
-		DMA_CH1_SHADR.U= CPU_GLB_ADDR_DSPR(Cpu_getCoreId(), &destination_2[0]);
+		P14_OMSR.B.PS2=1;
 	}
-#endif /*End of KNOCHECK_DOUBLE_BUFFERING*/
+	KnoCheck_IgnDataCnt++;
+	Ifx_DMA *psDMA = &MODULE_DMA;
+	psDMA->CH[DMA_CHANNEL_SELECT].CHCFGR.B.TREL = BUFFER_SIZE;
+	psDMA->CH[DMA_CHANNEL_SELECT].CHCSR.B.FROZEN = 0;
+	KnoCheck_NumBuffer = psDMA->CH[DMA_CHANNEL_SELECT].CHCSR.B.BUFFER;
+	if (KnoCheck_NumBuffer == BUFFER1)
+	{
+		psDMA->CH[DMA_CHANNEL_SELECT].DADR.U= CPU_GLB_ADDR_DSPR(Cpu_getCoreId(), &Buffer0_Dest[0]);
+	}
+	else
+	{
+		psDMA->CH[DMA_CHANNEL_SELECT].SHADR.U= CPU_GLB_ADDR_DSPR(Cpu_getCoreId(), &Buffer1_Dest[0]);
+	}
 
+	if(KnoCheck_IgnDataCnt>=3)
+	{
+	KnoCheck_IsrDistFlg = DMA_ISR_FLAG;
+	#if(FINAL == CONTROL_EN)
+	KnoCheck_Memcopy();
+	KnoCheck_Filter();
+	#elif(FINAL == CONTROL_DIS)
+	Memcopy_Test();
+	FIR_Filter_Test();
+	#endif
+	}
 
-#if (defined(DOUBLE_BUFFRING_TEST) || defined(SIMPLE_FILTER_DOUBLEBUF_TEST) || defined(CHANGE_FILTER_DOUBLEBUF_TEST) || defined(CHANNEL_FILTER_SELECT_TEST))
-	  ISR_Dist_Flag = DMA_ISR_FLAG;
-	  Memcopy_Test();
-#endif /*End of (defined(DOUBLE_BUFFRING_TEST) || defined(SIMPLE_FILTER_DOUBLEBUF_TEST) || defined(CHANGE_FILTER_DOUBLEBUF_TEST) || defined(CHANNEL_FILTER_SELECT_TEST))*/
-
-
-#if defined(SIMPLE_FILTER_DOUBLEBUF_TEST)|| defined(CHANGE_FILTER_DOUBLEBUF_TEST) || defined(CHANNEL_FILTER_SELECT_TEST)
-	  FIR_Filter_Test();
-#endif /*End of (defined(SIMPLE_FILTER_DOUBLEBUF_TEST) || defined(CHANGE_FILTER_DOUBLEBUF_TEST) || defined(CHANNEL_FILTER_SELECT_TEST))*/
-
-#ifdef BASIC_FILTER_TEST
-	   FIR_Filter_Test();
-#endif /*End of BASIC_FILTER_TEST*/
-
-#ifdef DYNAMIC_DATA_FILTER_TEST
-	  Memcopy_Test();
-	  FIR_Filter_Test();
-#endif /*End of DYNAMIC_DATA_FILTER_TEST*/
-
-#ifdef TOTAL_FILTER_TEST
-	  Filter_Selection();
-	  Memcopy_Test();
-	  FIR_Filter_Test_Total();
-#endif /*End of TOTAL_FILTER_TEST*/
-	  DMA_CH1_CHCSR.B.CICH = 1;
-	  DMA_ISR_Cnt++;
-	  IfxCpu_releaseMutex(&resourceLock);
+	/*only for debugging*/
+	if(P14_OUT.B.P8 == TRUE)
+	{
+		P14_OMCR.B.PCL8=1;
+	}
+	else
+	{
+		P14_OMSR.B.PS8=1;
+	}
+	psDMA->CH[DMA_CHANNEL_SELECT].CHCSR.B.CICH = 1;
+#ifdef KNOCHECK_TEST
+	DMA_ISR_Cnt++;
+#endif
 }
-}
+/*End of DMA_Count_ISR*/
+

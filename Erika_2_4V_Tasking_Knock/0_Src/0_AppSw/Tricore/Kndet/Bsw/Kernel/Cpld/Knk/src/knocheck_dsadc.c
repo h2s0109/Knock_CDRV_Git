@@ -27,6 +27,7 @@
 /******************************************************************************/
 /*-------------------------Function Prototypes--------------------------------*/
 /******************************************************************************/
+void KnoCheck_Dsadc_Ini(void);
 static void KnoCheck_Dsadc_IniGlob(void);
 static void KnoCheck_Dsadc_IniChanDftCfg(Dsadc_ChannelConfig *config);
 static void KnoCheck_Dsadc_IniChan(Dsadc_Channel *channel, const Dsadc_ChannelConfig *ChanDftCfg);
@@ -42,49 +43,50 @@ static void KnoCheck_Dsadc_IniAuxFilter(Dsadc_Channel *channel, const Dsadc_AuxF
 /******************************************************************************/
 /*------------------------Private Variables/Constants-------------------------*/
 /******************************************************************************/
-static uint8 DsadcChannelAvailable[4] = {0, 1, 0, 0};
 
 /******************************************************************************/
 /*-------------------------Function Implementations---------------------------*/
 /******************************************************************************/
 
-void KnoCheck_DSADC_Ini(void)
+void KnoCheck_Dsadc_Ini(void)
 {
-	uint32 chn;
-	Dsadc_ChannelConfig KnoCheck_DSADC_ChanCfg_temp;
-	Dsadc_ChannelSetting DSADC_channel_temp;
+	Dsadc_ChannelConfig cfgKC_DsadcChan;
+	Dsadc_ChannelSetting iniKC_DsadcChan;
 
 	/*Initialization GLOBCFG Register*/
 	KnoCheck_Dsadc_IniGlob();
 	/*Assign DSADC default value*/
-	KnoCheck_Dsadc_IniChanDftCfg(&KnoCheck_DSADC_ChanCfg_temp);
+	KnoCheck_Dsadc_IniChanDftCfg(&cfgKC_DsadcChan);
+#ifdef KNOCHECK_DSADC_TEST
+	cfgKC_DsadcChan.modulator.autopower			= Auto_off;								/*DSADC_CH_MODCFG.B.APC*/
+	cfgKC_DsadcChan.combFilter.serviceRequest  	= MainServiceRequest_everyNewResult;	/*DSADC_CH_FCFGC.B.SRGM*/
+	cfgKC_DsadcChan.firFilter.fir0Enabled       = TRUE;									/*DSADC_CH_FCFGM.B.FIR0EN*/
+	cfgKC_DsadcChan.firFilter.fir1Enabled       = TRUE;									/*DSADC_CH_FCFGM.B.FIR1EN*/
 
-	/* initialize channels */
-    for (chn = 0; chn < 2; ++chn)
-    {
-        if (DsadcChannelAvailable[chn])
-        {
-        	KnoCheck_DSADC_ChanCfg_temp.channelId = (ChannelId)chn;
-            KnoCheck_Dsadc_IniChan(&DSADC_channel_temp.dsadcChannels[chn], &KnoCheck_DSADC_ChanCfg_temp);
-#if 0
-            KnoCheck_Dsadc_ChanEnDis(chn, KNK_EN_ENABLE);
 #endif
-        }
-    }
+	/*SPB = 100MHz DividerFACTOR=8->Sampling Frequency=12.5MHZ Fd=312.50,Pass_band 104.17 COM=10 OSR FIR0=2 FIR1=2 SUM of OSR 40*/
+	/* initialize channels */
+	cfgKC_DsadcChan.channelId = (ChannelId)CHANNEL_DSADC;
+	KnoCheck_Dsadc_IniChan(&iniKC_DsadcChan.dsadcChannels[CHANNEL_DSADC], &cfgKC_DsadcChan);
+
 
     /*Start DSADC*/
+	DSADC_MOVE_ENGINE_RUN = TRUE;
+	DSADC_CHANNEL_RUN = TRUE;
+	DSADC_OFFM = 0XFC1F;
 
-    Ifx_DSADC *psDSADC = &MODULE_DSADC;
-    psDSADC->GLOBRC.B.M1RUN =1;
-    psDSADC->GLOBRC.B.CH1RUN =1;
-//  psDSADC->GLOBRC.U = psDSADC->GLOBRC.U | psDSADC->GLOBRC.B.M0RUN | psDSADC->GLOBRC.B.CH0RUN;
-    SRC_DSADCSRM1.U = (3 << 11) | (1 << 10) | 1; /* 0<11 => ON CPU0, 1<<10 => Enable*, 55 INT_PRIO*/
-};
+#ifdef KNOCHECK_DSADC_TEST
+		SRC_DSADC_KNOCK.U = (1 << 11) | (1 << 10) | DSADC_TEST_PRIOD; /* 3<11 => ON DMA, 1<<10 => Enable, DMA_CHANNEL_SELECT CONNECT DMA*/
+#else
+		SRC_DSADC_KNOCK.U = (3 << 11) | (1 << 10) | DMA_CHANNEL_SELECT; /* 3<11 => ON DMA, 1<<10 => Enable, DMA_CHANNEL_SELECT CONNECT DMA*/
+#endif
+
+}
 
 static void KnoCheck_Dsadc_IniGlob(void)
 {
 	Ifx_DSADC *psDSADC = &MODULE_DSADC;
-	Ifx_DSADC_GLOBCFG KnCheck_DSADC_GlobCfg;
+	Ifx_DSADC_GLOBCFG cfgKC_DsadcGlob;
 
 	/*Clock setting, Can move by user*/
 	uint16 passwd = IfxScuWdt_getCpuWatchdogPassword();
@@ -93,22 +95,23 @@ static void KnoCheck_Dsadc_IniGlob(void)
 	if (psDSADC->CLC.U)
 	{}                       // sync access
 	IfxScuWdt_setCpuEndinit(passwd);
-	/*DSADC setting*/
-	KnCheck_DSADC_GlobCfg.B.MCSEL     = ModulatorClock_fDSD;
-	KnCheck_DSADC_GlobCfg.B.LOSUP     = LowPowerSupply_5V;/*normal power mode*/
-	KnCheck_DSADC_GlobCfg.B.PSWC  		= Can_Write;
 
-	psDSADC->GLOBCFG.U = KnCheck_DSADC_GlobCfg.U;
+	/*DSADC setting*/
+	cfgKC_DsadcGlob.B.MCSEL     = ModulatorClock_fDSD;
+	cfgKC_DsadcGlob.B.LOSUP     = LowPowerSupply_5V;	/*normal power mode*/
+	cfgKC_DsadcGlob.B.PSWC  	= Can_Write;
+
+	psDSADC->GLOBCFG.U = cfgKC_DsadcGlob.U;
 }
 
 static void KnoCheck_Dsadc_IniChanDftCfg(Dsadc_ChannelConfig *KnoCheck_DSADC_ChanDftCfg)
 {
 	/*Assign_DSADC_modulator_value*/
 	KnoCheck_DSADC_ChanDftCfg->modulator.positiveInput      	= InputConfig_inputPin;				/*DSADC_CH_MODCFG.B.INCFGP*/
-	KnoCheck_DSADC_ChanDftCfg->modulator.negativeInput      	= InputConfig_referenceGround;		/*DSADC_CH_MODCFG.B.INCFGN*/
+	KnoCheck_DSADC_ChanDftCfg->modulator.negativeInput      	= InputConfig_inputPin;				/*DSADC_CH_MODCFG.B.INCFGN*/
 	KnoCheck_DSADC_ChanDftCfg->modulator.inputGain         		= InputGain_factor1;				/*DSADC_CH_MODCFG.B.GAINSEL*/
-	KnoCheck_DSADC_ChanDftCfg->modulator.inputPin           	= InputPin_b;						/*DSADC_CH_MODCFG.B.INSEL*/
-	KnoCheck_DSADC_ChanDftCfg->modulator.inputMode           	= Trig_rising;						/*DSADC_CH_MODCFG.B.INMODE*/
+	KnoCheck_DSADC_ChanDftCfg->modulator.inputPin           	= InputPin_a;						/*DSADC_CH_MODCFG.B.INSEL*/
+	KnoCheck_DSADC_ChanDftCfg->modulator.inputMode           	= Softcontrol;						/*DSADC_CH_MODCFG.B.INMODE*/
 	KnoCheck_DSADC_ChanDftCfg->modulator.inputMAC				= Preset;							/*DSADC_CH_MODCFG.B.INMAC*/
 	KnoCheck_DSADC_ChanDftCfg->modulator.modulatorClockFreq 	= 12.5e6;							/*DSADC_CH_MODCFG.B.DIVM*/
 	KnoCheck_DSADC_ChanDftCfg->modulator.commonModeVoltage  	= CommonModeVoltage_c;				/*DSADC_CH_MODCFG.B.CMVS*/
@@ -117,7 +120,7 @@ static void KnoCheck_Dsadc_IniChanDftCfg(Dsadc_ChannelConfig *KnoCheck_DSADC_Cha
 	KnoCheck_DSADC_ChanDftCfg->modulator.autopower				= Auto_on;							/*DSADC_CH_MODCFG.B.APC*/
 
 	/*Assign_DSADC_Demodulator_value*/
-	KnoCheck_DSADC_ChanDftCfg->demodulator.inputDataSource	= InputDataSource_onChipStandAlone;		/*DSADC_CH_DICFG.B.DSRC*/
+	KnoCheck_DSADC_ChanDftCfg->demodulator.inputDataSource	  = InputDataSource_onChipStandAlone;	/*DSADC_CH_DICFG.B.DSRC*/
 	KnoCheck_DSADC_ChanDftCfg->demodulator.triggerInput       = TriggerInput_b;						/*DSADC_CH_DICFG.B.TRSEL*/
 	KnoCheck_DSADC_ChanDftCfg->demodulator.integrationTrigger = IntegratorTrigger_bypassed;			/*DSADC_CH_DICFG.B.ITRMODE*/
 	KnoCheck_DSADC_ChanDftCfg->demodulator.timestampTrigger   = TimestampTrigger_noTrigger;			/*DSADC_CH_DICFG.B.TSTRMODE*/
@@ -129,8 +132,8 @@ static void KnoCheck_Dsadc_IniChanDftCfg(Dsadc_ChannelConfig *KnoCheck_DSADC_Cha
 	KnoCheck_DSADC_ChanDftCfg->combFilter.combFilterType   	= MainCombFilterType_comb3;				/*DSADC_CH_FCFGC.B.CFMC*/
 	KnoCheck_DSADC_ChanDftCfg->combFilter.combFilterShift 	= MainCombFilterShift_shiftBy3;			/*DSADC_CH_FCFGC.B.MFSC*/
 	KnoCheck_DSADC_ChanDftCfg->combFilter.serviceRequest  	= MainServiceRequest_highGateSignal;	/*DSADC_CH_FCFGC.B.SRGM*/
-	KnoCheck_DSADC_ChanDftCfg->combFilter.decimationFactor	= 8;									/*DSADC_CH_FCFGC.B.CFMDF*/
-	KnoCheck_DSADC_ChanDftCfg->combFilter.startValue      	= 8;									/*DSADC_CH_FCFGC.B.CFMSV*/
+	KnoCheck_DSADC_ChanDftCfg->combFilter.decimationFactor	= 10;									/*DSADC_CH_FCFGC.B.CFMDF*/
+	KnoCheck_DSADC_ChanDftCfg->combFilter.startValue      	= 10;									/*DSADC_CH_FCFGC.B.CFMSV*/
 
 	/*Assign_DSADC_FIRfilter_value*/
 	KnoCheck_DSADC_ChanDftCfg->firFilter.fir0Enabled       	= TRUE;									/*DSADC_CH_FCFGM.B.FIR0EN*/
@@ -153,7 +156,6 @@ static void KnoCheck_Dsadc_IniChanDftCfg(Dsadc_ChannelConfig *KnoCheck_DSADC_Cha
 	KnoCheck_DSADC_ChanDftCfg->auxFilter.eventSelect      	= AuxEvent_everyNewResult;
 	KnoCheck_DSADC_ChanDftCfg->auxFilter.eventGate        	= AuxGate_definedByESEL;
 	KnoCheck_DSADC_ChanDftCfg->auxFilter.decimationFactor 	= 4;
-	//KnoCheck_DSADC_ChanDftCfg->channelPins            		= NULL_PTR;
 }
 
 static void KnoCheck_Dsadc_IniChan(Dsadc_Channel *channel, const Dsadc_ChannelConfig *ChanDftCfg)
@@ -170,128 +172,40 @@ static void KnoCheck_Dsadc_IniChan(Dsadc_Channel *channel, const Dsadc_ChannelCo
     KnoCheck_Dsadc_IniIntegrator(channel, &ChanDftCfg->integrator);
     KnoCheck_Dsadc_IniAuxFilter(channel, &ChanDftCfg->auxFilter);
 }
-#if 0
-void KnoCheck_Dsadc_ChanEnDis(uint8 Ch, uint8 Enable)
-{
-	Ifx_DSADC *psDSADC = &MODULE_DSADC;
-    switch(ch)
-    case KNK_CH1:
-    	if(Enable == KNK_EN_ENABLE)
-    	{
-			psDSADC->GLOBRC.B.M0RUN =1;
-			psDSADC->GLOBRC.B.CH0RUN =1;
-    	}
-    	else
-    	{
-			psDSADC->GLOBRC.B.M0RUN =0;
-			psDSADC->GLOBRC.B.CH0RUN =0;
-    	}
-    	break;
-    case KNK_CH2:
-    	if(Enable == KNK_EN_ENABLE)
-    	{
-			psDSADC->GLOBRC.B.M1RUN =1;
-			psDSADC->GLOBRC.B.CH1RUN =1;
-    	}
-    	else
-    	{
-			psDSADC->GLOBRC.B.M1RUN =0;
-			psDSADC->GLOBRC.B.CH1RUN =0;
-    	}
-    	break;
-    case KNK_CH3:
-    	if(Enable == KNK_EN_ENABLE)
-    	{
-			psDSADC->GLOBRC.B.M2RUN =1;
-			psDSADC->GLOBRC.B.CH2RUN =1;
-    	}
-    	else
-    	{
-			psDSADC->GLOBRC.B.M2RUN =0;
-			psDSADC->GLOBRC.B.CH2RUN =0;
-    	}
-    	break;
-    case KNK_CH4:
-    	if(Enable == KNK_EN_ENABLE)
-    	{
-			psDSADC->GLOBRC.B.M3RUN =1;
-			psDSADC->GLOBRC.B.CH3RUN =1;
-    	}
-    	else
-    	{
-			psDSADC->GLOBRC.B.M3RUN =0;
-			psDSADC->GLOBRC.B.CH3RUN =0;
-    	}
-    	break;
-/*DO NOT FORGET Hardware number need to be changed.*/
-/*    case 4:
-    	if(Enable == KNK_EN_ENABLE)
-    	{
-			psDSADC->GLOBRC.B.M4RUN =1;
-			psDSADC->GLOBRC.B.CH4RUN =1;
-    	}
-    	else
-    	{
-			psDSADC->GLOBRC.B.M4RUN =0;
-			psDSADC->GLOBRC.B.CH4RUN =0;
-    	}
-    case 5:
-    	if(Enable == KNK_EN_ENABLE)
-    	{
-			psDSADC->GLOBRC.B.M5RUN =1;
-			psDSADC->GLOBRC.B.CH5RUN =1;
-    	}
-    	else
-    	{
-			psDSADC->GLOBRC.B.M5RUN =0;
-			psDSADC->GLOBRC.B.CH5RUN =0;
-    	}*/
-    default:
-    	psDSADC->GLOBRC =0;
-    	break;
-}
-
-
-
-void Knk_En(uint8 Ch, uint8 Enable)
-{
-	KnoCheck_Dsadc_ChanEnDis(Ch,Enable);
-}
-#endif
 
 static void KnoCheck_Dsadc_IniModulator(Dsadc_Channel *channel, const Dsadc_ModulatorConfig *ChanDftCfg)
 {
-    Ifx_DSADC_CH_MODCFG ModCfg_temp;
+    Ifx_DSADC_CH_MODCFG cfgMod;
     float32 targetFreq;
     float32 sourceFreq;
 
     /*collect_DSADC_Modulator_value*/
 
-    ModCfg_temp.U			= 0; 							/*Assign initial zero value*/
+    cfgMod.U			= 0; 							/*Assign initial zero value*/
 
     /*--------------Input Functionality--------------*/
-    ModCfg_temp.B.INCFGP	= ChanDftCfg->positiveInput;	/*Configuration of Positive Input Line*/
-    ModCfg_temp.B.INCFGN	= ChanDftCfg->negativeInput;	/*Configuration of Negative Input Line*/
-    ModCfg_temp.B.GAINSEL	= ChanDftCfg->inputGain;		/*Gain Select of Analog Input Path*/
-    ModCfg_temp.B.INSEL		= ChanDftCfg->inputPin;			/*Input Pin Selection*/
-    ModCfg_temp.B.INMODE	= ChanDftCfg->inputMode;		/*Input Multiplexer Control Mode*/
-    ModCfg_temp.B.INMAC		= ChanDftCfg->inputMAC;			/*Input Multiplexer Action Control*/
-    ModCfg_temp.B.INCWC		= Can_Write;       				/*NCFGP, INCFGN, GAINSEL, INSEL,INMODE, INMAC can be written*/
+    cfgMod.B.INCFGP		= ChanDftCfg->positiveInput;	/*Configuration of Positive Input Line*/
+    cfgMod.B.INCFGN		= ChanDftCfg->negativeInput;	/*Configuration of Negative Input Line*/
+    cfgMod.B.GAINSEL	= ChanDftCfg->inputGain;		/*Gain Select of Analog Input Path*/
+    cfgMod.B.INSEL		= ChanDftCfg->inputPin;			/*Input Pin Selection*/
+    cfgMod.B.INMODE		= ChanDftCfg->inputMode;		/*Input Multiplexer Control Mode*/
+    cfgMod.B.INMAC		= ChanDftCfg->inputMAC;			/*Input Multiplexer Action Control*/
+    cfgMod.B.INCWC		= Can_Write;       				/*NCFGP, INCFGN, GAINSEL, INSEL,INMODE, INMAC can be written*/
 
     /*--------------Clock Functionality--------------*/
-    targetFreq				= ChanDftCfg->modulatorClockFreq;/*Tagert frequency*/
-    sourceFreq				= KnoCheck_Dsadc_getSpbFrequency();
-    ModCfg_temp.B.DIVM		= KnoCheck_Dsadc_calcDIVx(sourceFreq, &targetFreq);	/*Divider Factor for Modulator Clock*/
-    ModCfg_temp.B.DWC		= Can_Write; 					/*Bitfield DIVM can be written*/
+    targetFreq			= ChanDftCfg->modulatorClockFreq;/*Tagert frequency*/
+    sourceFreq			= KnoCheck_Dsadc_getSpbFrequency();
+    cfgMod.B.DIVM		= KnoCheck_Dsadc_calcDIVx(sourceFreq, &targetFreq);	/*Divider Factor for Modulator Clock*/
+    cfgMod.B.DWC		= Can_Write; 					/*Bitfield DIVM can be written*/
 
     /*--------------ETC Functionality--------------*/
-    ModCfg_temp.B.CMVS		= ChanDftCfg->commonModeVoltage;/* Common Mode Voltage Selection*/
-    ModCfg_temp.B.MCFG		= ChanDftCfg->modulatorcfg; 	/*Modulator Configuration*/
-    ModCfg_temp.B.GCEN		= ChanDftCfg->gaincal;			/*Gain Calibration Enable*/
-    ModCfg_temp.B.APC		= ChanDftCfg->autopower;			/*Gain Calibration Enable*/
-    ModCfg_temp.B.MWC		= Can_Write; 					/*Bitfields CMVS, MCFG, GCEN, APC can be written*/
+    cfgMod.B.CMVS		= ChanDftCfg->commonModeVoltage;/* Common Mode Voltage Selection*/
+    cfgMod.B.MCFG		= ChanDftCfg->modulatorcfg; 	/*Modulator Configuration*/
+    cfgMod.B.GCEN		= ChanDftCfg->gaincal;			/*Gain Calibration Enable*/
+    cfgMod.B.APC		= ChanDftCfg->autopower;			/*Gain Calibration Enable*/
+    cfgMod.B.MWC		= Can_Write; 					/*Bitfields CMVS, MCFG, GCEN, APC can be written*/
 
-    (channel->channel)->MODCFG = ModCfg_temp;				/* Register setting*/
+    (channel->channel)->MODCFG = cfgMod;				/* Register setting*/
 }
 
 
@@ -337,114 +251,129 @@ static sint32 KnoCheck_Dsadc_calcDIVx(float32 sourceFreq, float32 *targetFreq)
 
 static void KnoCheck_Dsadc_IniDemodulator(Dsadc_Channel *channel, const Dsadc_DemodulatorConfig *ChanDftCfg)
 {
-    Ifx_DSADC_CH_DICFG DeModCfg_temp;
+    Ifx_DSADC_CH_DICFG cfgDeMod;
 
     /*collect_DSADC_Demodulator_value*/
 
-    DeModCfg_temp.U                   = 0;	/*Assign initial zero value*/
+    cfgDeMod.U                   = 0;	/*Assign initial zero value*/
 
     /*--------------Input Functionality--------------*/
-    DeModCfg_temp.B.DSRC              = ChanDftCfg->inputDataSource;	/*Input Data Source Select*/
-    DeModCfg_temp.B.DSWC              = Can_Write; 						/*Bitfield DSRC can be written*/
+    cfgDeMod.B.DSRC              = ChanDftCfg->inputDataSource;	/*Input Data Source Select*/
+    cfgDeMod.B.DSWC              = Can_Write; 						/*Bitfield DSRC can be written*/
 
     /*--------------Trigger Functionality--------------*/
-    DeModCfg_temp.B.ITRMODE           = ChanDftCfg->integrationTrigger;	/*Integrator Trigger Mode*/
-    DeModCfg_temp.B.TSTRMODE          = ChanDftCfg->timestampTrigger;	/*Timestamp Trigger Mode*/
-    DeModCfg_temp.B.TRSEL             = ChanDftCfg->triggerInput;		/*Trigger Select*/
-    DeModCfg_temp.B.TRWC              = Can_Write; 						/*Bitfields TRSEL, TSTRMODE, ITRMODE can be written*/
+    cfgDeMod.B.ITRMODE           = ChanDftCfg->integrationTrigger;	/*Integrator Trigger Mode*/
+    cfgDeMod.B.TSTRMODE          = ChanDftCfg->timestampTrigger;	/*Timestamp Trigger Mode*/
+    cfgDeMod.B.TRSEL             = ChanDftCfg->triggerInput;		/*Trigger Select*/
+    cfgDeMod.B.TRWC              = Can_Write; 						/*Bitfields TRSEL, TSTRMODE, ITRMODE can be written*/
 
     /*--------------Sampling Functionality--------------*/
-    DeModCfg_temp.B.CSRC              = ChanDftCfg->sampleClockSource;	/*Sample Clock Source Select*/
-    DeModCfg_temp.B.STROBE            = ChanDftCfg->sampleStrobe;		/*Data Strobe Generation Mode*/
-    DeModCfg_temp.B.SCWC              = Can_Write; 						/*Bitfields STROBE, CSRC can be written*/
+    cfgDeMod.B.CSRC              = ChanDftCfg->sampleClockSource;	/*Sample Clock Source Select*/
+    cfgDeMod.B.STROBE            = ChanDftCfg->sampleStrobe;		/*Data Strobe Generation Mode*/
+    cfgDeMod.B.SCWC              = Can_Write; 						/*Bitfields STROBE, CSRC can be written*/
 
-    (channel->channel)->DICFG = DeModCfg_temp;							/* Register setting*/
+    (channel->channel)->DICFG = cfgDeMod;							/* Register setting*/
 }
 static void KnoCheck_Dsadc_IniCombFilter(Dsadc_Channel *channel, const Dsadc_CombFilterConfig *ChanDftCfg)
 {
-    Ifx_DSADC_CH_FCFGC Comb_temp;
+    Ifx_DSADC_CH_FCFGC cfgComb;
 
     /*collect_DSADC_Combfilter_value*/
 
-    Comb_temp.U                   = 0;	/*Assign initial zero value*/
+    cfgComb.U                   = 0;	/*Assign initial zero value*/
 
-    Comb_temp.B.CFMDF             = ChanDftCfg->decimationFactor - 1;
-    Comb_temp.B.CFMC              = ChanDftCfg->combFilterType;
-    Comb_temp.B.CFEN              = (ChanDftCfg->bypassed == FALSE) ? 1 : 0;
+    cfgComb.B.CFMDF             = ChanDftCfg->decimationFactor - 1;
+    cfgComb.B.CFMC              = ChanDftCfg->combFilterType;
+    cfgComb.B.CFEN              = (ChanDftCfg->bypassed == FALSE) ? 1 : 0;
 
-    Comb_temp.B.MFSC              = ChanDftCfg->combFilterShift;
+    cfgComb.B.MFSC              = ChanDftCfg->combFilterShift;
 
-    Comb_temp.B.SRGM              = ChanDftCfg->serviceRequest;
-    Comb_temp.B.CFMSV             = ChanDftCfg->startValue - 1;
+    cfgComb.B.SRGM              = ChanDftCfg->serviceRequest;
+    cfgComb.B.CFMSV             = ChanDftCfg->startValue - 1;
 
-    (channel->channel)->FCFGC = Comb_temp;
+    (channel->channel)->FCFGC = cfgComb;
 }
 
 static void KnoCheck_Dsadc_IniFirFilter(Dsadc_Channel *channel, const Dsadc_FirFilterConfig *ChanDftCfg)
 {
-    Ifx_DSADC_CH_FCFGM Fir_temp;
+    Ifx_DSADC_CH_FCFGM cfgFir;
 
     /*collect_DSADC_FIRfilter_value*/
 
-    Fir_temp.U                   = 0;	/*Assign initial zero value*/
+    cfgFir.U                   = 0;	/*Assign initial zero value*/
 
-    Fir_temp.B.FIR0EN            = ChanDftCfg->fir0Enabled;
-    Fir_temp.B.FIR1EN            = ChanDftCfg->fir1Enabled;
-    Fir_temp.B.OCEN              = ChanDftCfg->offsetCompensation;
-    Fir_temp.B.DSH               = ChanDftCfg->dataShift;
-    Fir_temp.B.FSH               = ChanDftCfg->internalShift;
+    cfgFir.B.FIR0EN            = ChanDftCfg->fir0Enabled;
+    cfgFir.B.FIR1EN            = ChanDftCfg->fir1Enabled;
+    cfgFir.B.OCEN              = ChanDftCfg->offsetCompensation;
+    cfgFir.B.DSH               = ChanDftCfg->dataShift;
+    cfgFir.B.FSH               = ChanDftCfg->internalShift;
 
-    (channel->channel)->FCFGM = Fir_temp;
+    (channel->channel)->FCFGM = cfgFir;
 }
+
 static void KnoCheck_Dsadc_IniIntegrator(Dsadc_Channel *channel, const Dsadc_IntegratorConfig *ChanDftCfg)
 {
-    Ifx_DSADC_CH_IWCTR Integ_temp;
+    Ifx_DSADC_CH_IWCTR cfgInteg;
 
     /*collect_DSADC_FIRfilter_value*/
 
-    Integ_temp.U                   = 0;									/*Assign initial zero value*/
+    cfgInteg.U                   = 0;									/*Assign initial zero value*/
 
-    Integ_temp.B.REPVAL            = ChanDftCfg->integrationCycles - 1;	/*Number of Integration Cycles*/
-    Integ_temp.B.NVALDIS           = ChanDftCfg->discardCount;			/*Number of Values Discarded*/
-    Integ_temp.B.IWS               = ChanDftCfg->windowSize;			/*Integration Window Size*/
-    Integ_temp.B.NVALINT           = ChanDftCfg->integrationCount - 1;	/*Number of Values Integrated*/
+    cfgInteg.B.REPVAL            = ChanDftCfg->integrationCycles - 1;	/*Number of Integration Cycles*/
+    cfgInteg.B.NVALDIS           = ChanDftCfg->discardCount;			/*Number of Values Discarded*/
+    cfgInteg.B.IWS               = ChanDftCfg->windowSize;				/*Integration Window Size*/
+    cfgInteg.B.NVALINT           = ChanDftCfg->integrationCount - 1;	/*Number of Values Integrated*/
 
-    (channel->channel)->IWCTR = Integ_temp;
+    (channel->channel)->IWCTR = cfgInteg;
 }
+
 static void KnoCheck_Dsadc_IniAuxFilter(Dsadc_Channel *channel, const Dsadc_AuxFilterConfig *ChanDftCfg)
 {
-    Ifx_DSADC_CH_FCFGA Aux_temp;
+    Ifx_DSADC_CH_FCFGA cfgAux;
 
     /*collect_DSADC_Auxfilter_value*/
 
-    Aux_temp.U                   = 0;								/*Assign initial zero value*/
+    cfgAux.U                   = 0;									/*Assign initial zero value*/
 
-    Aux_temp.B.CFADF             = ChanDftCfg->decimationFactor - 1;	/*CIC Filter (Auxiliary) Decimation Factor*/
-    Aux_temp.B.CFAC              = ChanDftCfg->combFilterType;			/*CIC Filter (Auxiliary) Configuration*/
+    cfgAux.B.CFADF             = ChanDftCfg->decimationFactor - 1;	/*CIC Filter (Auxiliary) Decimation Factor*/
+    cfgAux.B.CFAC              = ChanDftCfg->combFilterType;		/*CIC Filter (Auxiliary) Configuration*/
 
-    Aux_temp.B.SRGA              = ChanDftCfg->serviceRequest;			/*Service Request Generation Auxiliary Filter*/
-    Aux_temp.B.ESEL              = ChanDftCfg->eventSelect;				/*Event Select*/
-    Aux_temp.B.EGT               = ChanDftCfg->eventGate;				/*Event Gating*/
+    cfgAux.B.SRGA              = ChanDftCfg->serviceRequest;		/*Service Request Generation Auxiliary Filter*/
+    cfgAux.B.ESEL              = ChanDftCfg->eventSelect;			/*Event Select*/
+    cfgAux.B.EGT               = ChanDftCfg->eventGate;				/*Event Gating*/
 
-    Aux_temp.B.AFSC              = ChanDftCfg->combFilterShift;			/*Auxiliary Filter Shift Control*/
+    cfgAux.B.AFSC              = ChanDftCfg->combFilterShift;		/*Auxiliary Filter Shift Control*/
 
-    (channel->channel)->FCFGA = Aux_temp;
+    (channel->channel)->FCFGA = cfgAux;
 }
 
 #ifdef KNOCHECK_DSADC_TEST
-sint16 result_DSADC[1][10000];
+sint16 result_DSADC[10][500];
 uint16 count_i;
-
-void KnoCheck_DSADC_Demo(void)
+uint16 count_j;
+IFX_INTERRUPT (DSADC_TEST, 0, DSADC_TEST_PRIOD)
 {
 	Ifx_DSADC *psDSADC = &MODULE_DSADC;
-	if(count_i<1000)
+	if(count_j<10)
 	{
-		//psDSADC->CH[0].OFFM.B.OFFSET=1200 ;
-	result_DSADC[0][count_i]=(sint16)(psDSADC->CH[0].RESM.B.RESULT);
-	count_i++;
+		if(count_i<500)
+		{
+			psDSADC->CH[0].OFFM.B.OFFSET=0XFC1F ;
+			result_DSADC[count_j][count_i]=(sint16)(psDSADC->CH[CHANNEL_DSADC].RESM.B.RESULT);
+			count_i++;
+		}
+		else
+		{
+			count_i=0;
+			count_j++;
+		}
 	}
-
+	else
+	{
+		count_j = 0;
+		count_i = 0;
+	}
 }
+
 #endif
 

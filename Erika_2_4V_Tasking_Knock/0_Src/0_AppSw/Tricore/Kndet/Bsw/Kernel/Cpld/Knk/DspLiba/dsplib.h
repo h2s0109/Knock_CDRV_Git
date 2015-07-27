@@ -39,15 +39,15 @@
 void Ifx_firRealQ15a(
                 sint16 *    x,
                 sint16 *    y,
-                KnoCirBuff c,
-                KnoCirBuff * s,
+                KNOCHECK_CIRBUFF c,
+                KNOCHECK_CIRBUFF * s,
                 uint32      n
                 );
 void FirBlk_4_16(
 		sint16*      X,      //Ptr to Input-Buffer
 		sint16*      R,      //Ptr to Output-Buffer
-		KnoCirBuff   H,      //Circ-Ptr of Coeff-Buffer
-		KnoCirBuff*  DLY,    //Ptr to Circ-Ptr of Delay-Buffer
+		KNOCHECK_CIRBUFF   H,      //Circ-Ptr of Coeff-Buffer
+		KNOCHECK_CIRBUFF *  DLY,    //Ptr to Circ-Ptr of Delay-Buffer
 		uint32         nX      //Size of Input-Buffer
                 );
 

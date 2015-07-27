@@ -28,11 +28,10 @@
 #include "os.h"
 #include "Ifx_reg.h"
 
-#include"knocheck_pub.h"
 
-#ifdef KNDET_DEF_H
+	#include"knocheck_pub.h"
 
-#endif
+	/*End of KNOCHECK_USE*/
 
 #define OS_TICK_IN_SECONDS (0.0001)
 #define BLINKLED_INTERVAL_SECONDS (0.05)
@@ -125,7 +124,7 @@ void Ifx_OSTask_initBlinkyLedFunction (void)
     IfxPort_setPinModeOutput(&MODULE_P33,10,IfxPort_OutputMode_pushPull,IfxPort_OutputIdx_general);
     IfxPort_setPinModeOutput(&MODULE_P33,11,IfxPort_OutputMode_pushPull,IfxPort_OutputIdx_general);
     IfxPort_setPinModeOutput(&MODULE_P33,12,IfxPort_OutputMode_pushPull,IfxPort_OutputIdx_general);
-    IfxPort_setPinModeOutput(&MODULE_P33,13,IfxPort_OutputMode_pushPull,IfxPort_OutputIdx_general);
+   // IfxPort_setPinModeOutput(&MODULE_P33,13,IfxPort_OutputMode_pushPull,IfxPort_OutputIdx_general);
 }
 
 uint32 Ifx_OSTask_Event1_Count;
@@ -141,7 +140,10 @@ TASK(IFX_OSTASK_EVENT1)
 		{
 
 			Ifx_OSTask_LedNum++;
-			if((Ifx_OSTask_LedNum < 6)|| (Ifx_OSTask_LedNum > 13)) Ifx_OSTask_LedNum=6;
+			if((Ifx_OSTask_LedNum < 6)|| (Ifx_OSTask_LedNum > 13))
+			{
+				Ifx_OSTask_LedNum=6;
+			}
 			IfxPort_setPinState(&MODULE_P33,Ifx_OSTask_LedNum,IfxPort_getPinState(&MODULE_P33,Ifx_OSTask_LedNum)?IfxPort_State_low:IfxPort_State_high);
 		}
 	}
@@ -185,9 +187,6 @@ TASK(IFX_OSTASK_5MS)
 	Ifx_OSTask_5ms_Count++;
 	{
 		/*Call your 5ms functions here*/
-#ifdef KNOCHECK_DSADC_TEST
-		KnoCheck_DSADC_Demo();
-#endif
 
 	}
 	TerminateTask();
@@ -264,11 +263,13 @@ TASK(IFX_OSTASK_INIT)
 	Ifx_OSTask_initStm0Ticks ();
 	Ifx_OSTask_initBlinkyLedFunction();
 
-#ifdef KNDET_DEF_H
-	KnoCheck_DSADC_Ini();
+#ifdef KNOCHECK_USE
+	KnoCheck_Dsadc_Ini();
 	KnoCheck_Dma_Ini();
 	KnoWindow_Output_Ini();
+	Knocheck_Ini();
 #endif
+	/*End of KNOCHECK_USE*/
 
 	ActivateTask(IFX_OSTASK_EVENT1);
 	ActivateTask(IFX_OSTASK_EVENT2);

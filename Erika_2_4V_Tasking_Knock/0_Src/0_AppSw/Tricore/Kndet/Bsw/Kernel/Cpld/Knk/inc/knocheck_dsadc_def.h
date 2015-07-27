@@ -5,18 +5,15 @@
  *      Author: hansteve
  */
 
-#ifndef KNOCHECK_DEF_H_
-#define KNOCHECK_DEF_H_
+#ifndef KNOCHECK_DSADC_DEF_H_
+#define KNOCHECK_DSADC_DEF_H_
 
 
 /******************************************************************************/
 /*----------------------------------Includes----------------------------------*/
 /******************************************************************************/
 
-#include "IfxSrc.h"/*For interrupt control*/
-#include "IfxDsadc_PinMap.h"
 #include "IfxDsadc_reg.h"
-#include "IfxCpu_Intrinsics.h"
 
 /******************************************************************************/
 /*--------------------------------Enumerations--------------------------------*/
@@ -424,25 +421,6 @@ typedef struct
    uint8              decimationFactor;     /**< \brief CIC Filter (Auxiliary) decimation factor (4 .. 32) */
 }Dsadc_AuxFilterConfig;
 
-/** \brief Channel Pins Configuration structure
- */
-
-#if 0
-typedef struct
-{
-    constCin_In *cin;         /**< \brief the CIN Pin which should be configured */
-    IfxPort_InputMode      cinMode;     /**< \brief the CIN pin input mode which should be configured */
-    constDin_In *din;         /**< \brief the DIN Pin which should be configured */
-    IfxPort_InputMode      dinMode;     /**< \brief the DIN pin input mode which should be configured */
-    constItr_In *itr;         /**< \brief the ITR Pin which should be configured */
-    IfxPort_InputMode      itrMode;     /**< \brief the ITR pin input mode which should be configured */
-    constDsn_In *dsn;         /**< \brief the DSN Pin which should be configured */
-    IfxPort_InputMode      dsnMode;     /**< \brief the DSN pin output mode which should be configured */
-    constDsp_In *dsp;         /**< \brief the DSP Pin which should be configured */
-    IfxPort_InputMode      dspMode;     /**< \brief the DSP pin output mode which should be configured */
-}Dsadc_ChannelPins;
-#endif
-
 
 /** \brief Comb filter configuration structure
  */
@@ -527,21 +505,6 @@ typedef struct
     Ifx_DSADC *dsadc;     /**< \brief Specifies the pointer to the DSADC module registers */
 }Dsadc;
 
-/** \brief Carrier generation configuration structure
- */
-#if 0
-typedef struct
-{
-   CarrierWaveformMode carrierWaveformMode;     /**< \brief Carrier generation mode */
-    boolean                      inverted;                /**< \brief Signal polarity (Normal / Inverted) selection */
-    boolean                      bitReversed;             /**< \brief Bit-Reverse PWM Generation (Normal / Bit reverse mode) selection */
-    float32                      frequency;               /**< \brief Expected excitation frequency */
-    constCgpwm_Out    *pinPos;                  /**< \brief Positive-carrier pin configuration */
-    constCgpwm_Out    *pinNeg;                  /**< \brief Negative-carrier pin configuration */
-    IfxPort_OutputMode           pinMode;                 /**< \brief Carrier pins output mode */
-    IfxPort_PadDriver            pinDriver;               /**< \brief Carrier pins pad driver */
-}Dsadc_CarrierGenConfig;
-#endif
 
 /** \brief Channel handle structure
  */
@@ -565,7 +528,6 @@ typedef struct
    Dsadc_IntegratorConfig   integrator;      /**< \brief Integrator configuration structure */
    Dsadc_AuxFilterConfig    auxFilter;       /**< \brief Auxiliary comb filter configuration structure */
    Dsadc_RectifierConfig    rectifier;       /**< \brief Rectifier configuration structure */
-   //constDsadc_ChannelPins *channelPins;     /**< \brief Channel Pins Configuration structure */
 }Dsadc_ChannelConfig;
 
 /** \brief Clock configuration data structure
@@ -579,7 +541,7 @@ typedef struct
 
 typedef struct
 {
-    Dsadc_Channel dsadcChannels[IFXDSADC_NUM_CHANNELS];
+    Dsadc_Channel dsadcChannels[MAX_CHANNEL];
 } Dsadc_ChannelSetting;
 //IFX_EXTERN DsadcBasic g_DsadcBasic;
 #endif /* KNOCHECK_DEF_H_ */
