@@ -1,0 +1,35 @@
+
+/******************************************************************************/
+/*                          Resouce Information                               */
+/******************************************************************************/
+
+/* CMU_CLK_4->GTM_ATOM2_CH0(SOMP)->P00.9->Crankshaft signal*/
+/* DPLL->TBU_TS1->GTM_ATOM0_CH3(SOMC)->P00.4->EOI PULSE */
+/* DPLL->TBU_TS1->GTM_ATOM3_CH0(SOMC)->P33.10->EOI Compare PULSE */
+/* P20.6->Represent the sync position at rising edge,Represent the recalculation position at falling edge*/
+/* CLK_0->TBU_TS0 100ns/tick */
+/* CLK_1->TIM0_CH0 TimeOut 1ms/tick */
+/* GTM_ATOM4_CH0(SOMC) Auxiliary */
+
+/* Debugger check variable*/
+/*
+Graphic4
+Graphic3
+Graphic2
+Graphic1
+CompareResult
+PMTR_Cov
+OldAlgolithmForConvEOI 
+1:Select the Old EOI Strategy 0:1:Select the New EOI Strategy
+CrankValue
+ - CrankValue.Pattern 1:Dynamic mode 0:static mode
+ - CrankValue.Period_IncreasInc
+ - CrankValue.Period_DecreasInc
+ 
+ v.w Graphic4 Graphic3 Graphic2 Graphic1 CompareResult PMTR_Cov OldAlgolithmForConvEOI CrankValue
+ v.Draw Graphic4
+ v.Draw Graphic3
+ v.Draw Graphic2
+ v.Draw Graphic1
+ C:\D\MCS_compile\Tasking_mcs.bat
+*/
