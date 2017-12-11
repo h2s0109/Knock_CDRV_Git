@@ -8,7 +8,7 @@
 #include <knocheck_config.h>
 #include <knocheck_def.h>
 #include <knocheck_Switch.h>
-#include "Ifx_Types.h"			/* will be changed to HMC header*/
+#include "Ifx_Types.h"			/* will be changed to header*/
 #ifdef KNOCHECK_TEST
 	__align (4)
 	uint8 	FilterIndices[KNK_PARALLELFILTER_SIZE] ={0,1,2};
